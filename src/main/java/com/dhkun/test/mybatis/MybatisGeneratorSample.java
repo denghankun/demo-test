@@ -9,6 +9,4 @@ public class MybatisGeneratorSample {
 		args = new String[]{"-configfile", "src/main/resources/generatorConfig2.xml", "-overwrite"};
 		ShellRunner.main(args);
 	}
-
-
 }
