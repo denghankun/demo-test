@@ -7,6 +7,7 @@
 	<properties resource="jdbc.properties" />
 	<classPathEntry location="${jdbc.location}" />
 	<context id="DB2Tables" targetRuntime="MyBatis3">
+		<plugin type="com.dhkun.test.mybatis.plugin.PaginationPlugin" />
 		<commentGenerator>
 			<property name="suppressDate" value="true" />
 			<property name="suppressAllComments" value="true" />
@@ -30,7 +31,7 @@
 			<property name="enableSubPackages" value="true" />
 		</javaClientGenerator>
 		<!--生成对应表及类名 -->
-		<table tableName="s2b_group_orders" domainObjectName="GroupOrders"
+		<table tableName="user" domainObjectName="User"
 			   enableCountByExample="false" enableUpdateByExample="false"
 			   enableDeleteByExample="false" enableSelectByExample="false"
 			   selectByExampleQueryId="false"/>
