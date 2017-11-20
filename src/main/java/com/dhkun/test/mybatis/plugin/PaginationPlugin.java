@@ -27,7 +27,7 @@ public class PaginationPlugin extends PluginAdapter {
     /**
      * 更新操作忽略'created'字段
      */
-    private static final List<DefaultField> UPDATESELECTIVE_FIELDS = Arrays.asList(DefaultField.DISABLED, DefaultField.CREATED_INGORED, DefaultField.UPDATED);
+    private static final List<DefaultField> UPDATESELECTIVE_FIELDS = Arrays.asList(DefaultField.DISABLED_INGORED, DefaultField.CREATED_INGORED, DefaultField.UPDATED);
 
     /**
 	 * 生成dao
@@ -121,6 +121,11 @@ public class PaginationPlugin extends PluginAdapter {
 		InsertBatchElementGenerator insertBatchGen = new InsertBatchElementGenerator(CodeGenConstants.InsertBatchColumns.NON_PK_COLUMN);// 默认不包含主键
 		insertBatchGen.setIntrospectedTable(introspectedTable); // 进行初始化
 		insertBatchGen.addElements(parentElement); // 新增脚本
+		
+		// 增加批量更新脚本
+		UpdateBatchByPrimaryKeySelectiveElementGenerator updateBatchGen = new UpdateBatchByPrimaryKeySelectiveElementGenerator();
+		updateBatchGen.setIntrospectedTable(introspectedTable);
+		updateBatchGen.addElements(parentElement);
 
 		return super.sqlMapDocumentGenerated(document, introspectedTable);
 	}
@@ -330,7 +335,7 @@ public class PaginationPlugin extends PluginAdapter {
 		    sb.append(MyBatis3FormattingUtilities.getParameterClause(introspectedColumn));
 		    answer.addElement(new TextElement(sb.toString()));
 		}
-		System.out.println("新输出的updateSelective语句为：\n" + answer.getFormattedContent(0));
+		System.out.println("新输出的updateByPrimaryKeySelective语句为：\n" + answer.getFormattedContent(0));
 		return super.sqlMapUpdateByPrimaryKeySelectiveElementGenerated(answer, introspectedTable);
 	}
 
