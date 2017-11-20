@@ -19,6 +19,7 @@ import org.mybatis.generator.api.dom.xml.*;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
 import org.mybatis.generator.config.GeneratedKey;
 
+import com.dhkun.test.mybatis.constants.CodeGenConstants;
 import com.dhkun.test.mybatis.constants.DefaultField;
 
 public class PaginationPlugin extends PluginAdapter {
@@ -78,7 +79,6 @@ public class PaginationPlugin extends PluginAdapter {
 	public boolean sqlMapDocumentGenerated(Document document,
 			IntrospectedTable introspectedTable) {
 		String tableName = introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime();// 数据库表名
-		List<IntrospectedColumn> columns = introspectedTable.getAllColumns();
 		XmlElement parentElement = document.getRootElement();
 
 		// 添加sql——where
@@ -116,6 +116,11 @@ public class PaginationPlugin extends PluginAdapter {
 
 		select.addElement(include);
 		parentElement.addElement(select);
+		
+		// 增加批量插入脚本
+		InsertBatchElementGenerator insertBatchGen = new InsertBatchElementGenerator(CodeGenConstants.InsertBatchColumns.NON_PK_COLUMN);// 默认不包含主键
+		insertBatchGen.setIntrospectedTable(introspectedTable); // 进行初始化
+		insertBatchGen.addElements(parentElement); // 新增脚本
 
 		return super.sqlMapDocumentGenerated(document, introspectedTable);
 	}
