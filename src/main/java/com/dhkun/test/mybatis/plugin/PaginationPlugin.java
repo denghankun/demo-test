@@ -19,8 +19,14 @@ import org.mybatis.generator.api.dom.xml.*;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
 import org.mybatis.generator.config.GeneratedKey;
 
+import com.dhkun.test.mybatis.constants.DefaultField;
+
 public class PaginationPlugin extends PluginAdapter {
-    public static final List<String> defaultFields = Arrays.asList("disabled", "created", "updated");
+    private static final List<DefaultField> INSERTSELECTIVE_FIELDS = Arrays.asList(DefaultField.DISABLED, DefaultField.CREATED, DefaultField.UPDATED);
+    /**
+     * 更新操作忽略'created'字段
+     */
+    private static final List<DefaultField> UPDATESELECTIVE_FIELDS = Arrays.asList(DefaultField.DISABLED, DefaultField.CREATED_INGORED, DefaultField.UPDATED);
 
     /**
 	 * 生成dao
@@ -147,15 +153,16 @@ public class PaginationPlugin extends PluginAdapter {
 		// 修改默认insertSelective的实现
 		// 修改1：名字从insertSelective改为insert
 		// 修改2：如果含有字段disable，created，updated，赋予默认值
-        element.getAttributes().clear(); // 清空原有所有属性
-        element.getElements().clear(); // 清空原有所有元素
+		element.getAttributes().clear(); // 清空原有所有属性
+		element.getElements().clear(); // 清空原有所有元素
 
-        element.addAttribute(new Attribute("id", introspectedTable.getInsertSelectiveStatementId())); //$NON-NLS-1$
+        XmlElement answer = element;
+        answer.addAttribute(new Attribute("id", introspectedTable.getInsertSelectiveStatementId())); //$NON-NLS-1$
         //element.addAttribute(new Attribute("id", "insert"));
 
         FullyQualifiedJavaType parameterType = introspectedTable.getRules().calculateAllFieldsClass();
 
-        element.addAttribute(new Attribute("parameterType", //$NON-NLS-1$
+        answer.addAttribute(new Attribute("parameterType", //$NON-NLS-1$
                 parameterType.getFullyQualifiedName()));
 
 
@@ -166,10 +173,10 @@ public class PaginationPlugin extends PluginAdapter {
             // warning has already been reported
             if (introspectedColumn != null) {
                 if (gk.isJdbcStandard()) {
-                    element.addAttribute(new Attribute("useGeneratedKeys", "true")); //$NON-NLS-1$ //$NON-NLS-2$
-                    element.addAttribute(new Attribute("keyProperty", introspectedColumn.getJavaProperty())); //$NON-NLS-1$
+                    answer.addAttribute(new Attribute("useGeneratedKeys", "true")); //$NON-NLS-1$ //$NON-NLS-2$
+                    answer.addAttribute(new Attribute("keyProperty", introspectedColumn.getJavaProperty())); //$NON-NLS-1$
                 } else {
-                    element.addElement(getSelectKey(introspectedColumn, gk));
+                    answer.addElement(getSelectKey(introspectedColumn, gk));
                 }
             }
         }
@@ -178,19 +185,19 @@ public class PaginationPlugin extends PluginAdapter {
 
         sb.append("insert into "); //$NON-NLS-1$
         sb.append(introspectedTable.getFullyQualifiedTableNameAtRuntime());
-        element.addElement(new TextElement(sb.toString()));
+        answer.addElement(new TextElement(sb.toString()));
 
         XmlElement insertTrimElement = new XmlElement("trim"); //$NON-NLS-1$
         insertTrimElement.addAttribute(new Attribute("prefix", "(")); //$NON-NLS-1$ //$NON-NLS-2$
         insertTrimElement.addAttribute(new Attribute("suffix", ")")); //$NON-NLS-1$ //$NON-NLS-2$
         insertTrimElement.addAttribute(new Attribute("suffixOverrides", ",")); //$NON-NLS-1$ //$NON-NLS-2$
-        element.addElement(insertTrimElement);
+        answer.addElement(insertTrimElement);
 
         XmlElement valuesTrimElement = new XmlElement("trim"); //$NON-NLS-1$
         valuesTrimElement.addAttribute(new Attribute("prefix", "values (")); //$NON-NLS-1$ //$NON-NLS-2$
         valuesTrimElement.addAttribute(new Attribute("suffix", ")")); //$NON-NLS-1$ //$NON-NLS-2$
         valuesTrimElement.addAttribute(new Attribute("suffixOverrides", ",")); //$NON-NLS-1$ //$NON-NLS-2$
-        element.addElement(valuesTrimElement);
+        answer.addElement(valuesTrimElement);
 
         for (IntrospectedColumn introspectedColumn : introspectedTable.getAllColumns()) {
             if (introspectedColumn.isIdentity()) {
@@ -219,8 +226,8 @@ public class PaginationPlugin extends PluginAdapter {
             }
 
             String columnName = MyBatis3FormattingUtilities.getEscapedColumnName(introspectedColumn);
-            if (defaultFields.contains(columnName)) { // 默认disable字段配置为0
-                addDefautlField(columnName,insertTrimElement, valuesTrimElement);
+            if (containsDefaultField(columnName, INSERTSELECTIVE_FIELDS)) {
+                addInsertDefautlField(columnName,insertTrimElement, valuesTrimElement, INSERTSELECTIVE_FIELDS);
             }  else {
                 XmlElement insertNotNullElement = new XmlElement("if"); //$NON-NLS-1$
                 sb.setLength(0);
@@ -248,8 +255,78 @@ public class PaginationPlugin extends PluginAdapter {
             }
         }
 
-        System.out.println("新输出的insertSelective语句为：" + element.getFormattedContent(0));
-        return super.sqlMapInsertSelectiveElementGenerated(element, introspectedTable);
+        System.out.println("新输出的insertSelective语句为：\n" + answer.getFormattedContent(0));
+        return super.sqlMapInsertSelectiveElementGenerated(answer, introspectedTable);
+	}
+	
+	@Override
+	public boolean sqlMapUpdateByPrimaryKeySelectiveElementGenerated(
+            XmlElement element, IntrospectedTable introspectedTable) {
+		element.getAttributes().clear(); // 清空原有所有属性
+        element.getElements().clear(); // 清空原有所有元素
+		
+		XmlElement answer = element;
+		answer.addAttribute(new Attribute("id", introspectedTable.getUpdateByPrimaryKeySelectiveStatementId())); //$NON-NLS-1$
+		
+		String parameterType;
+		
+		if (introspectedTable.getRules().generateRecordWithBLOBsClass()) {
+		    parameterType = introspectedTable.getRecordWithBLOBsType();
+		} else {
+		    parameterType = introspectedTable.getBaseRecordType();
+		}
+		
+		answer.addAttribute(new Attribute("parameterType", //$NON-NLS-1$
+		        parameterType));
+		
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("update "); //$NON-NLS-1$
+		sb.append(introspectedTable.getFullyQualifiedTableNameAtRuntime());
+		answer.addElement(new TextElement(sb.toString()));
+		
+		XmlElement dynamicElement = new XmlElement("set"); //$NON-NLS-1$
+		answer.addElement(dynamicElement);
+		
+		for (IntrospectedColumn introspectedColumn : introspectedTable.getNonPrimaryKeyColumns()) {
+			String columnName = MyBatis3FormattingUtilities.getEscapedColumnName(introspectedColumn);
+			if (containsDefaultField(columnName, UPDATESELECTIVE_FIELDS)) {
+				addUpdateDefaultField(columnName, dynamicElement, UPDATESELECTIVE_FIELDS);
+			} else {
+			    XmlElement isNotNullElement = new XmlElement("if"); //$NON-NLS-1$
+			    sb.setLength(0);
+			    sb.append(introspectedColumn.getJavaProperty());
+			    sb.append(" != null"); //$NON-NLS-1$
+			    isNotNullElement.addAttribute(new Attribute("test", sb.toString())); //$NON-NLS-1$
+			    dynamicElement.addElement(isNotNullElement);
+			
+			    sb.setLength(0);
+			    sb.append(columnName);
+			    sb.append(" = "); //$NON-NLS-1$
+			    sb.append(MyBatis3FormattingUtilities.getParameterClause(introspectedColumn));
+			    sb.append(',');
+			
+			    isNotNullElement.addElement(new TextElement(sb.toString()));
+			}
+		}
+		
+		boolean and = false;
+		for (IntrospectedColumn introspectedColumn : introspectedTable.getPrimaryKeyColumns()) {
+		    sb.setLength(0);
+		    if (and) {
+		        sb.append("  and "); //$NON-NLS-1$
+		    } else {
+		        sb.append("where "); //$NON-NLS-1$
+		        and = true;
+		    }
+		
+		    sb.append(MyBatis3FormattingUtilities.getEscapedColumnName(introspectedColumn));
+		    sb.append(" = "); //$NON-NLS-1$
+		    sb.append(MyBatis3FormattingUtilities.getParameterClause(introspectedColumn));
+		    answer.addElement(new TextElement(sb.toString()));
+		}
+		System.out.println("新输出的updateSelective语句为：\n" + answer.getFormattedContent(0));
+		return super.sqlMapUpdateByPrimaryKeySelectiveElementGenerated(answer, introspectedTable);
 	}
 
 	public boolean validate(List<String> arg0) {
@@ -295,25 +372,43 @@ public class PaginationPlugin extends PluginAdapter {
         topLevelClass.addField(field);
     }
 
-    private void addDefautlField(String columnName, XmlElement insertTrimElement, XmlElement valuesTrimElement) {
+    private boolean containsDefaultField(String columnName, List<DefaultField> defaultFields) {
+    	for (DefaultField defaultField : defaultFields) {
+    		if (defaultField.getField().equals(columnName)) {
+    			return true;
+    		}
+    	}
+    	return false;
+    }
+    
+    private void addInsertDefautlField(String columnName, XmlElement insertTrimElement, XmlElement valuesTrimElement, List<DefaultField> defaultFields) {
         StringBuilder sb = new StringBuilder();
-        if ("disabled".equals(columnName)) { // 默认disable字段配置为0
-            sb.setLength(0);
-            sb.append(columnName).append(',');
-            insertTrimElement.addElement(new TextElement(sb.toString()));
+        for (DefaultField defaultField : defaultFields) {
+			if (defaultField.getField().equals(columnName)
+					&& defaultField.getDefaultValue() != null) {
+				sb.setLength(0);
+	            sb.append(columnName).append(',');
+	            insertTrimElement.addElement(new TextElement(sb.toString()));
 
-            sb.setLength(0);
-            sb.append("0").append(',');
-            valuesTrimElement.addElement(new TextElement(sb.toString()));
-        } else if ("created".equals(columnName) || "updated".equals(columnName)) { // 默认created和updated字段配置为now()
-            sb.setLength(0);
-            sb.append(columnName).append(',');
-            insertTrimElement.addElement(new TextElement(sb.toString()));
-
-            sb.setLength(0);
-            sb.append("now()").append(',');
-            valuesTrimElement.addElement(new TextElement(sb.toString()));
-        }
-
+	            sb.setLength(0);
+	            sb.append(defaultField.getDefaultValue()).append(',');
+	            valuesTrimElement.addElement(new TextElement(sb.toString()));
+			}
+		}
+    }
+    
+    private void addUpdateDefaultField(String columnName, XmlElement dynamicElement, List<DefaultField> defaultFields) {
+    	StringBuilder sb = new StringBuilder();
+    	for (DefaultField defaultField : defaultFields) {
+    		if (defaultField.getField().equals(columnName)
+    				&& defaultField.getDefaultValue() != null) {
+	    		sb.setLength(0);
+			    sb.append(columnName);
+			    sb.append(" = "); //$NON-NLS-1$
+			    sb.append(defaultField.getDefaultValue());
+			    sb.append(',');
+			    dynamicElement.addElement(new TextElement(sb.toString()));
+    		}
+		}
     }
 }

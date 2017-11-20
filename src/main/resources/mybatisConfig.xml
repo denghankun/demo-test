@@ -35,7 +35,7 @@
 			enableCountByExample="false" enableUpdateByExample="false"
 			enableDeleteByExample="false" enableSelectByExample="false"
 			selectByExampleQueryId="false"></table> -->
-		<table tableName="s2b_group_orders" domainObjectName="GroupOrders"
+		<table tableName="s2b_brand" domainObjectName="Brand"
 			   enableCountByExample="false" enableUpdateByExample="false"
 			   enableDeleteByExample="false" enableSelectByExample="false"
 			   selectByExampleQueryId="false"/>
