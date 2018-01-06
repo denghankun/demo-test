@@ -217,7 +217,6 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           if (field == null || !field.deserialized) {
             in.skipValue();
           } else {
-            // 增加对象属性描述
             field.read(in, instance);
           }
         }

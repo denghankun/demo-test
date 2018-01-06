@@ -40,9 +40,17 @@ public class MyGsonSample {
         strList.add("A");
         strList.add("B");
         pojo2.setStrList(strList);
+        /** 设置子对象*/
+        List<SamplePojo3> objList = new ArrayList<SamplePojo3>();
+        SamplePojo3 pojo31 = new SamplePojo3();
+        pojo31.setStr("1_1");
+        objList.add(pojo31);
+        pojo2.setObjList(objList);
+        
         String json = gson.toJson(pojo2);
         System.out.println(json);
-        String expectedJson = "{\"i1\":1,\"i2\":1,\"l1\":1,\"l2\":1,\"d1\":1.0,\"d2\":1.0,\"f1\":1.0,\"f2\":1.0,\"c\":\"1\",\"str\":\"1\",\"date\":1515202807657,\"strList\":[\"A\",\"B\"]}";
+        String expectedJson = "{\"i1\":1,\"i2\":1,\"l1\":1,\"l2\":1,\"d1\":1.0,\"d2\":1.0,\"f1\":1.0,\"f2\":1.0,\"c\":\"1\",\"str\":\"1\",\"date\":1515202807657,"
+                + "\"strList\":[\"A\",\"B\"],\"objList\":[{\"i1\":0,\"l1\":0,\"d1\":0.0,\"f1\":0.0,\"c\":\"\\u0000\",\"str\":\"1_1\"}]}";
         Assert.assertEquals(expectedJson, json);
         
         SamplePojo2 ePojo2 = gson.fromJson(expectedJson, SamplePojo2.class);
