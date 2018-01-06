@@ -34,6 +34,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongArray;
 
+import com.google.gson.extension.InstancePropertyBuildPlugin;
+import com.google.gson.extension.GsonContextHolder;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.Excluder;
 import com.google.gson.internal.Primitives;
@@ -885,7 +887,11 @@ public final class Gson {
       isEmpty = false;
       TypeToken<T> typeToken = (TypeToken<T>) TypeToken.get(typeOfT);
       TypeAdapter<T> typeAdapter = getAdapter(typeToken);
+      // 增加插件功能
+      InstancePropertyBuildPlugin.createInstance(typeToken.getRawType(), true);
       T object = typeAdapter.read(reader);
+      // 打印语句
+      GsonContextHolder.getGsonContext().print();
       return object;
     } catch (EOFException e) {
       /*

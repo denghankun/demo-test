@@ -19,6 +19,7 @@ package com.google.gson.internal.bind;
 import com.google.gson.*;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
+import com.google.gson.extension.FieldPropertyBuildPlugin;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.Excluder;
@@ -28,6 +29,7 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
@@ -124,6 +126,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           throws IOException, IllegalAccessException {
         Object fieldValue = typeAdapter.read(reader);
         if (fieldValue != null || !isPrimitive) {
+          FieldPropertyBuildPlugin.createField(field, fieldValue, value);
           field.set(value, fieldValue);
         }
       }
@@ -197,7 +200,8 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       this.boundFields = boundFields;
     }
 
-    @Override public T read(JsonReader in) throws IOException {
+    @Override 
+    public T read(JsonReader in) throws IOException {
       if (in.peek() == JsonToken.NULL) {
         in.nextNull();
         return null;
@@ -213,6 +217,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           if (field == null || !field.deserialized) {
             in.skipValue();
           } else {
+            // 增加对象属性描述
             field.read(in, instance);
           }
         }

@@ -4,6 +4,6 @@ import java.util.List;
 
 public interface UserService {
 
-	List<String> queryNames(String[] ids) throws Exception;
-	
+    List<String> queryNames(String[] ids) throws Exception;
+
 }

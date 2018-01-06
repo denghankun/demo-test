@@ -65,8 +65,7 @@ public class ClassIntrospector {
 
     // we need to keep track of already visited objects in order to support
     // cycles in the object graphs
-    private IdentityHashMap<Object, Boolean> m_visited = new IdentityHashMap<Object, Boolean>(
-            100);
+    private IdentityHashMap<Object, Boolean> m_visited = new IdentityHashMap<Object, Boolean>(100);
 
     private ObjectInfo introspect(final Object obj, final Field fld)
             throws IllegalAccessException {
@@ -83,12 +82,11 @@ public class ClassIntrospector {
                                      // seen this object
         if (!isPrimitive) {
             if (m_visited.containsKey(obj))
-                isRecursive = true;
+                isRecursive = true; // 防止循环引用导致堆栈溢出
             m_visited.put(obj, true);
         }
 
-        final Class<?> type = (fld == null || (obj != null && !isPrimitive)) ? obj
-                .getClass() : fld.getType();
+        final Class<?> type = (fld == null || (obj != null && !isPrimitive)) ? obj.getClass() : fld.getType();
         int arraySize = 0;
         int baseOffset = 0;
         int indexScale = 0;
@@ -100,9 +98,9 @@ public class ClassIntrospector {
 
         final ObjectInfo root;
         if (fld == null) {
-            root = new ObjectInfo("", type.getCanonicalName(), getContents(obj,
-                    type), 0, getShallowSize(type), arraySize, baseOffset,
-                    indexScale);
+            root = new ObjectInfo("", type.getCanonicalName(),
+                    getContents(obj, type), 0, getShallowSize(type),
+                    arraySize, baseOffset, indexScale);
         } else {
             final int offset = (int) unsafe.objectFieldOffset(fld);
             root = new ObjectInfo(fld.getName(), type.getCanonicalName(),
@@ -120,7 +118,7 @@ public class ClassIntrospector {
             } else {
                 for (final Field field : getAllFields(type)) {
                     if ((field.getModifiers() & Modifier.STATIC) != 0) {
-                        continue;
+                        continue; // 跳过静态字段
                     }
                     field.setAccessible(true);
                     root.addChild(introspect(field.get(obj), field));
