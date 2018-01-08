@@ -4,9 +4,11 @@ import org.apache.commons.lang.StringUtils;
 
 public class InstancePropertyBuildPlugin {
 
-    final static String LINE_SEPARATOR = System.getProperty("line.separator", "\n");
-    
-    public static void createInstance(Class<?> rawType, boolean isRoot) {
+    public static void beginCreateInstance(Class<?> rawType, boolean isRoot) {
+        // 必须为一般对象
+        if (rawType.isPrimitive() || BuildUtils.isWrapClass(rawType)) {
+            return;
+        }
         StringBuilder sb = GsonContextHolder.getGsonContext().getPropertyDesc();
         try {
             if (rawType.getConstructor() == null) {
@@ -14,24 +16,41 @@ public class InstancePropertyBuildPlugin {
             }
             String className = rawType.getSimpleName();
             String lowClassName = StringUtils.uncapitalize(className);
-            String inst = String.format("%s %s = new %s();", className, lowClassName, className);
-            sb.append(inst).append(LINE_SEPARATOR);
+            InstanceInfo cur = GsonContextHolder.getGsonContext().getCurInstanceInfo();
+            if (cur != null && cur.isHasSeq()) {
+                lowClassName += cur.getNextSeq();
+            }
+            String inst = String.format("%s %s = new %s();", className,
+                    lowClassName, className);
+            sb.append(inst).append(Constants.LINE_SEPARATOR);
             // 跟元素
             if (isRoot) {
-                InstanceInfo root = new InstanceInfo(lowClassName);
+                InstanceInfo root = new InstanceInfo(lowClassName, rawType);
                 // root 和 cur保持一致
                 GsonContextHolder.getGsonContext().setRootInstanceInfo(root);
                 GsonContextHolder.getGsonContext().setCurInstanceInfo(root);
             } else {
-            // 子元素
+                // 子元素
                 InstanceInfo parent = GsonContextHolder.getGsonContext().getCurInstanceInfo();
-                InstanceInfo child = new InstanceInfo(lowClassName, parent);
+                InstanceInfo child = new InstanceInfo(lowClassName, rawType, parent);
                 GsonContextHolder.getGsonContext().setCurInstanceInfo(child);
             }
         } catch (NoSuchMethodException e) {
-            throw new RuntimeException("创建对象示例语句失败", e);
+            e.printStackTrace();
+            throw new RuntimeException("创建对象实例语句失败", e);
         } catch (SecurityException e) {
-            throw new RuntimeException("创建对象示例语句失败", e);
+            e.printStackTrace();
+            throw new RuntimeException("创建对象实例语句失败", e);
         }
+    }
+    
+    public static void endCreateInstance(Class<?> rawType, boolean isRoot) {
+        if (isRoot) {
+            GsonContextHolder.getGsonContext().setCurInstanceInfo(null);
+            return;
+        }
+        
+        InstanceInfo parent = GsonContextHolder.getGsonContext().getCurInstanceInfo().getParent();
+        GsonContextHolder.getGsonContext().setCurInstanceInfo(parent);
     }
 }

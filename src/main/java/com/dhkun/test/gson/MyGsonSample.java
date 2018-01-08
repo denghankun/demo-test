@@ -17,43 +17,50 @@ public class MyGsonSample {
         String json = "{\"id\":1, \"name\":\"dhkun\"}";
 
         Gson gson = new GsonBuilder().create();
-        SamplePojo pojo = gson.fromJson(json, SamplePojo.class);
+        SampleA pojo = gson.fromJson(json, SampleA.class);
         System.out.println(pojo);
     }
     
     @Test
     public void test2() {
         Gson gson = new GsonBuilder().create();
-        SamplePojo2 pojo2 = new SamplePojo2();
-        pojo2.setI1(1);
-        pojo2.setI2(1);
-        pojo2.setL1(1L);
-        pojo2.setL2(1L);
-        pojo2.setD1(1.0);
-        pojo2.setD2(1.0);
-        pojo2.setF1(1.0f);
-        pojo2.setF2(1.0f);
-        pojo2.setC('1');
-        pojo2.setStr("1");
-        pojo2.setDate(new Date(1515202807657l));
+        SampleB sampleB = new SampleB();
+        sampleB.setI1(1);
+        sampleB.setI2(1);
+        sampleB.setL1(1L);
+        sampleB.setL2(1L);
+        sampleB.setD1(1.0);
+        sampleB.setD2(1.0);
+        sampleB.setF1(1.0f);
+        sampleB.setF2(1.0f);
+        sampleB.setC('1');
+        sampleB.setStr("1");
+        sampleB.setDate(new Date(1515202807657l));
         List<String> strList = new ArrayList<String>();
         strList.add("A");
         strList.add("B");
-        pojo2.setStrList(strList);
+        sampleB.setStrList(strList);
         /** 设置子对象*/
-        List<SamplePojo3> objList = new ArrayList<SamplePojo3>();
-        SamplePojo3 pojo31 = new SamplePojo3();
-        pojo31.setStr("1_1");
-        objList.add(pojo31);
-        pojo2.setObjList(objList);
+        List<SampleC> objList = new ArrayList<SampleC>();
+        SampleC sampleC0 = new SampleC();
+        sampleC0.setStr("1_1");
+        objList.add(sampleC0);
+        SampleC sampleC1 = new SampleC();
+        sampleC1.setStr("1_2");
+        objList.add(sampleC1);
         
-        String json = gson.toJson(pojo2);
+        sampleB.setObjList(objList);
+        
+        String json = gson.toJson(sampleB);
         System.out.println(json);
         String expectedJson = "{\"i1\":1,\"i2\":1,\"l1\":1,\"l2\":1,\"d1\":1.0,\"d2\":1.0,\"f1\":1.0,\"f2\":1.0,\"c\":\"1\",\"str\":\"1\",\"date\":1515202807657,"
-                + "\"strList\":[\"A\",\"B\"],\"objList\":[{\"i1\":0,\"l1\":0,\"d1\":0.0,\"f1\":0.0,\"c\":\"\\u0000\",\"str\":\"1_1\"}]}";
-        Assert.assertEquals(expectedJson, json);
+                + "\"strList\":[\"A\",\"B\"],\"objList\":["
+                + "{\"i1\":0,\"l1\":0,\"d1\":0.0,\"f1\":0.0,\"c\":\"\\u0000\",\"str\":\"1_1\"}"
+                + ",{\"i1\":0,\"l1\":0,\"d1\":0.0,\"f1\":0.0,\"c\":\"\\u0000\",\"str\":\"1_2\"}"
+                + "]}";
+        //Assert.assertEquals(expectedJson, json);
         
-        SamplePojo2 ePojo2 = gson.fromJson(expectedJson, SamplePojo2.class);
-        System.out.println(ePojo2);
+        SampleB targetSampleB = gson.fromJson(expectedJson, SampleB.class);
+        //System.out.println(ePojo2);
     }
 }

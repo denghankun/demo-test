@@ -887,8 +887,6 @@ public final class Gson {
       isEmpty = false;
       TypeToken<T> typeToken = (TypeToken<T>) TypeToken.get(typeOfT);
       TypeAdapter<T> typeAdapter = getAdapter(typeToken);
-      // 增加插件功能
-      InstancePropertyBuildPlugin.createInstance(typeToken.getRawType(), true);
       T object = typeAdapter.read(reader);
       // 打印语句
       GsonContextHolder.getGsonContext().print();

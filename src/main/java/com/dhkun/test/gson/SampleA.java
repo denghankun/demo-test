@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  *
  */
-public class SamplePojo implements Serializable {
+public class SampleA implements Serializable {
 
     private int id;
     private String name;

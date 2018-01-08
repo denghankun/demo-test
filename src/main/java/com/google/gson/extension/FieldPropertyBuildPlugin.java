@@ -10,11 +10,18 @@ public class FieldPropertyBuildPlugin {
     final static String LINE_SEPARATOR = System.getProperty("line.separator", "\n");
     
     public static void createField(final Field field, final Object fieldValue, final Object value) {
+        if (fieldValue == null) {
+            return;
+        }
         StringBuilder sb = GsonContextHolder.getGsonContext().getPropertyDesc();
         String fieldName = field.getName();
         String setMethodName = "set" + StringUtils.capitalize(fieldName);
         String className = value.getClass().getSimpleName();
         String instName = StringUtils.uncapitalize(className);
+        InstanceInfo cur = GsonContextHolder.getGsonContext().getCurInstanceInfo();
+        if (cur != null) {
+            instName = cur.getName(); // 使用当前上下文名字
+        }
         String fieldStr = String.format("%s.%s(%s);", instName, setMethodName, convertFieldValue(fieldValue));
         sb.append(fieldStr).append(LINE_SEPARATOR);
     }
@@ -44,11 +51,17 @@ public class FieldPropertyBuildPlugin {
         
         if (fieldValue instanceof List) {
             List<?> list = (List<?>) fieldValue;
-            String[] array = new String[list.size()];
-            for (int i = 0; i < list.size(); i++) {
-                array[i] = convertFieldValue(list.get(i));
+            if (list.size() > 0) {
+                if (!BuildUtils.isWrapClass(list.get(0).getClass())) {
+                    return GsonContextHolder.getGsonContext().getCurInstanceInfo().getCollectionFieldValue();
+                }
+                
+                String[] array = new String[list.size()];
+                for (int i = 0; i < list.size(); i++) {
+                    array[i] = convertFieldValue(list.get(i));
+                }
+                return String.format("Arrays.toList(%s)", StringUtils.join(array, ","));
             }
-            return String.format("Arrays.toList(%s)", StringUtils.join(array, ","));
         }
         return fieldValue.toString();
     }

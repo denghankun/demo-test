@@ -2,13 +2,14 @@ package com.dhkun.test.gson;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import com.google.gson.annotations.JsonAdapter;
 
 /**
  *
  */
-public class SamplePojo3 implements Serializable {
+public class SampleB implements Serializable {
 
     private static final long serialVersionUID = 1L;
     
@@ -30,6 +31,9 @@ public class SamplePojo3 implements Serializable {
     /** 日期*/
     @JsonAdapter(DateJsonAdapter.class)
     private Date date;
+    /** 集合*/
+    private List<String> strList;
+    private List<SampleC> objList;
 
     public int getI1() {
         return i1;
@@ -119,11 +123,29 @@ public class SamplePojo3 implements Serializable {
         this.date = date;
     }
 
-    @Override
-    public String toString() {
-        return "SamplePojo3 [i1=" + i1 + ", i2=" + i2 + ", l1=" + l1 + ", l2="
-                + l2 + ", d1=" + d1 + ", d2=" + d2 + ", f1=" + f1 + ", f2="
-                + f2 + ", c=" + c + ", str=" + str + ", date=" + date + "]";
+    public List<String> getStrList() {
+        return strList;
     }
 
+    public void setStrList(List<String> strList) {
+        this.strList = strList;
+    }
+
+    public List<SampleC> getObjList() {
+        return objList;
+    }
+
+    public void setObjList(List<SampleC> objList) {
+        this.objList = objList;
+    }
+
+    @Override
+    public String toString() {
+        return "SamplePojo2 [i1=" + i1 + ", i2=" + i2 + ", l1=" + l1 + ", l2="
+                + l2 + ", d1=" + d1 + ", d2=" + d2 + ", f1=" + f1 + ", f2="
+                + f2 + ", c=" + c + ", str=" + str + ", date=" + date
+                + ", strList=" + strList + ", objList=" + objList + "]";
+    }
+    
+    
 }

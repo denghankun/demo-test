@@ -19,7 +19,9 @@ package com.google.gson.internal.bind;
 import com.google.gson.*;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
+import com.google.gson.extension.BuildUtils;
 import com.google.gson.extension.FieldPropertyBuildPlugin;
+import com.google.gson.extension.InstancePropertyBuildPlugin;
 import com.google.gson.internal.$Gson$Types;
 import com.google.gson.internal.ConstructorConstructor;
 import com.google.gson.internal.Excluder;
@@ -126,6 +128,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
           throws IOException, IllegalAccessException {
         Object fieldValue = typeAdapter.read(reader);
         if (fieldValue != null || !isPrimitive) {
+          // 增加插件功能
           FieldPropertyBuildPlugin.createField(field, fieldValue, value);
           field.set(value, fieldValue);
         }
@@ -209,8 +212,11 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
 
       T instance = constructor.construct();
 
+      boolean isRoot = BuildUtils.isRootInstance();
       try {
         in.beginObject();
+        // 增加插件功能
+        InstancePropertyBuildPlugin.beginCreateInstance(instance.getClass(), isRoot);
         while (in.hasNext()) {
           String name = in.nextName();
           BoundField field = boundFields.get(name);
@@ -225,6 +231,7 @@ public final class ReflectiveTypeAdapterFactory implements TypeAdapterFactory {
       } catch (IllegalAccessException e) {
         throw new AssertionError(e);
       }
+      InstancePropertyBuildPlugin.endCreateInstance(instance.getClass(), isRoot);
       in.endObject();
       return instance;
     }
