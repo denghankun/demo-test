@@ -20,8 +20,7 @@ public class InstancePropertyBuildPlugin {
             if (cur != null && cur.isHasSeq()) {
                 lowClassName += cur.getNextSeq();
             }
-            String inst = String.format("%s %s = new %s();", className,
-                    lowClassName, className);
+            String inst = String.format("%s %s = new %s();", className, lowClassName, className);
             sb.append(inst).append(Constants.LINE_SEPARATOR);
             // 跟元素
             if (isRoot) {
@@ -49,8 +48,9 @@ public class InstancePropertyBuildPlugin {
             GsonContextHolder.getGsonContext().setCurInstanceInfo(null);
             return;
         }
-        
+        String curFieldValue = GsonContextHolder.getGsonContext().getCurInstanceInfo().getName();
         InstanceInfo parent = GsonContextHolder.getGsonContext().getCurInstanceInfo().getParent();
+        parent.setFieldValue(curFieldValue);
         GsonContextHolder.getGsonContext().setCurInstanceInfo(parent);
     }
 }

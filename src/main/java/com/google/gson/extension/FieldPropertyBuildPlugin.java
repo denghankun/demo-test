@@ -63,6 +63,8 @@ public class FieldPropertyBuildPlugin {
                 return String.format("Arrays.toList(%s)", StringUtils.join(array, ","));
             }
         }
-        return fieldValue.toString();
+        // 默认返回当前
+        String curFieldValue = GsonContextHolder.getGsonContext().getCurInstanceInfo().getFieldValue();
+        return (curFieldValue == null ? fieldValue.toString() : curFieldValue);
     }
 }

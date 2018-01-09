@@ -31,6 +31,8 @@ public class SampleB implements Serializable {
     /** 日期*/
     @JsonAdapter(DateJsonAdapter.class)
     private Date date;
+    
+    private SampleC sampleC;
     /** 集合*/
     private List<String> strList;
     private List<SampleC> objList;
@@ -121,6 +123,14 @@ public class SampleB implements Serializable {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public SampleC getSampleC() {
+        return sampleC;
+    }
+
+    public void setSampleC(SampleC sampleC) {
+        this.sampleC = sampleC;
     }
 
     public List<String> getStrList() {

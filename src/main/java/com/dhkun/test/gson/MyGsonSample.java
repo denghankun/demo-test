@@ -36,6 +36,11 @@ public class MyGsonSample {
         sampleB.setC('1');
         sampleB.setStr("1");
         sampleB.setDate(new Date(1515202807657l));
+        // 成员对象
+        SampleC sampleC = new SampleC();
+        sampleC.setStr("1");
+        sampleB.setSampleC(sampleC);
+        
         List<String> strList = new ArrayList<String>();
         strList.add("A");
         strList.add("B");
@@ -48,17 +53,17 @@ public class MyGsonSample {
         SampleC sampleC1 = new SampleC();
         sampleC1.setStr("1_2");
         objList.add(sampleC1);
-        
         sampleB.setObjList(objList);
         
         String json = gson.toJson(sampleB);
         System.out.println(json);
-        String expectedJson = "{\"i1\":1,\"i2\":1,\"l1\":1,\"l2\":1,\"d1\":1.0,\"d2\":1.0,\"f1\":1.0,\"f2\":1.0,\"c\":\"1\",\"str\":\"1\",\"date\":1515202807657,"
-                + "\"strList\":[\"A\",\"B\"],\"objList\":["
+        String expectedJson = "{\"i1\":1,\"i2\":1,\"l1\":1,\"l2\":1,\"d1\":1.0,\"d2\":1.0,\"f1\":1.0,\"f2\":1.0,\"c\":\"1\",\"str\":\"1\",\"date\":1515202807657"
+                + ",\"sampleC\":{\"i1\":0,\"l1\":0,\"d1\":0.0,\"f1\":0.0,\"c\":\"\\u0000\",\"str\":\"1\"}"
+                + ",\"strList\":[\"A\",\"B\"],\"objList\":["
                 + "{\"i1\":0,\"l1\":0,\"d1\":0.0,\"f1\":0.0,\"c\":\"\\u0000\",\"str\":\"1_1\"}"
                 + ",{\"i1\":0,\"l1\":0,\"d1\":0.0,\"f1\":0.0,\"c\":\"\\u0000\",\"str\":\"1_2\"}"
                 + "]}";
-        //Assert.assertEquals(expectedJson, json);
+        Assert.assertEquals(expectedJson, json);
         
         SampleB targetSampleB = gson.fromJson(expectedJson, SampleB.class);
         //System.out.println(ePojo2);

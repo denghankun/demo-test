@@ -21,6 +21,8 @@ public class InstanceInfo {
     
     private String collectionFieldValue;
     
+    private String fieldValue;
+    
     public InstanceInfo(String name, Class<?> rawType) {
         this.name = name;
         this.rawType = rawType;
@@ -85,6 +87,14 @@ public class InstanceInfo {
 
     public void setCollectionFieldValue(String collectionFieldValue) {
         this.collectionFieldValue = collectionFieldValue;
+    }
+
+    public String getFieldValue() {
+        return fieldValue;
+    }
+
+    public void setFieldValue(String fieldValue) {
+        this.fieldValue = fieldValue;
     }
     
 }

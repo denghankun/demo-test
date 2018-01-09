@@ -40,20 +40,8 @@ public class CollectionPropertyBuildPlugin {
         
     }
     
-    @SuppressWarnings("rawtypes")
+    //@SuppressWarnings("rawtypes")
     public static void beginCreateElement(Type elementType, boolean isRoot) {
-        if (elementType instanceof Class) {
-            Class elementClass = (Class) elementType;
-            if (!BuildUtils.isWrapClass(elementClass)) {
-                InstancePropertyBuildPlugin.beginCreateInstance(elementClass, isRoot);
-                // 添加到List中
-                InstanceInfo cur = GsonContextHolder.getGsonContext().getCurInstanceInfo();
-                String parentName = cur.getParent().getName();
-                StringBuilder sb = GsonContextHolder.getGsonContext().getPropertyDesc();
-                String addStr = String.format("%s.add(%s);", parentName, cur.getName());
-                sb.append(addStr).append(Constants.LINE_SEPARATOR);
-            }
-        }
     }
     
     @SuppressWarnings("rawtypes")
@@ -65,14 +53,15 @@ public class CollectionPropertyBuildPlugin {
         if (elementType instanceof Class) {
             Class elementClass = (Class) elementType;
             if (!BuildUtils.isWrapClass(elementClass)) {
-                // 把cur的parent节点设置为cur
-                InstanceInfo parent = GsonContextHolder.getGsonContext().getCurInstanceInfo().getParent();
-                GsonContextHolder.getGsonContext().setCurInstanceInfo(parent);
+                InstanceInfo cur = GsonContextHolder.getGsonContext().getCurInstanceInfo();
+                StringBuilder sb = GsonContextHolder.getGsonContext().getPropertyDesc();
+                String addStr = String.format("%s.add(%s);", cur.getName(), cur.getFieldValue());
+                sb.append(addStr).append(Constants.LINE_SEPARATOR);
             }
         }
     }
     
-    //@SuppressWarnings("rawtypes")
+    @SuppressWarnings("rawtypes")
     public static<T> void endCreateCollection(Collection<T> collection, Type elementType, boolean isRoot) {
         if (isRoot) {
             return;
