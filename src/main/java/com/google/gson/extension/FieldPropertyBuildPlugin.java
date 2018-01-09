@@ -3,6 +3,7 @@ package com.google.gson.extension;
 import java.lang.reflect.Field;
 import java.util.List;
 
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.StringUtils;
 
 public class FieldPropertyBuildPlugin {
@@ -37,7 +38,10 @@ public class FieldPropertyBuildPlugin {
         }
         
         if (fieldValue instanceof Character) {
-            return "'" + fieldValue + "'"; 
+            Character c = (Character) fieldValue;
+            byte[] bytes = EndianConverter.toBytes(c.charValue());
+            // 转为16进制
+            return "0x" + Hex.encodeHexString(bytes); 
         }
         
         if (fieldValue instanceof String) {

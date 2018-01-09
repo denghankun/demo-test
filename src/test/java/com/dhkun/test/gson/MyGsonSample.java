@@ -68,4 +68,10 @@ public class MyGsonSample {
         SampleB targetSampleB = gson.fromJson(expectedJson, SampleB.class);
         //System.out.println(ePojo2);
     }
+    
+    @Test
+    public void test3() {
+        char c = 0x0031;
+        System.out.println("c=" + c);
+    }
 }
